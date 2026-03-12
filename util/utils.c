@@ -39,6 +39,8 @@ char *hex_to_ascii(const char *hex)
 			symbol_count = hex_length / 2;
 
 		text = (char *)malloc(symbol_count + 1); // Allocate memory for the result
+		if (!text)
+			return NULL;
 
 		int last_index = hex_length - 1;
 
@@ -107,6 +109,8 @@ unsigned char *read_binary_file(char *data_dir_path, const char *bin_path,
 	fseek(bin_file, 0, SEEK_SET);
 	if (*buffer_size <= 0) {
 		fclose(bin_file);
+		if (file_path != bin_path)
+			free(file_path);
 		return NULL;
 	}
 
@@ -115,6 +119,8 @@ unsigned char *read_binary_file(char *data_dir_path, const char *bin_path,
 	if (!buffer) {
 		nvme_show_result("\nFailed to allocate %ld bytes!", *buffer_size);
 		fclose(bin_file);
+		if (file_path != bin_path)
+			free(file_path);
 		return NULL;
 	}
 	memset(buffer, 0, *buffer_size);
@@ -128,6 +134,9 @@ unsigned char *read_binary_file(char *data_dir_path, const char *bin_path,
 	/* Validate we read data */
 	if (n_data != (size_t)*buffer_size) {
 		nvme_show_result("\nFailed to read %ld bytes from %s", *buffer_size, file_path);
+		free(buffer);
+		if (file_path != bin_path)
+			free(file_path);
 		return NULL;
 	}
 

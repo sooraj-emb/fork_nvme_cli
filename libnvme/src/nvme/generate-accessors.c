@@ -616,9 +616,15 @@ static void strlst_add(StringList_t *list, const char *string, bool steal)
 
 	if (list->count == list->capacity) {
 		/* Reallocate to double capacity */
-		list->capacity *= 2;
-		list->strings = (const char **)realloc(list->strings,
-						       list->capacity * sizeof(char *));
+		const char **new_strings;
+		size_t new_capacity = list->capacity * 2;
+
+		new_strings = (const char **)realloc(list->strings,
+						     new_capacity * sizeof(char *));
+		if (!new_strings)
+			return;
+		list->strings = new_strings;
+		list->capacity = new_capacity;
 		for (size_t i = list->count; i < list->capacity; i++)
 			list->strings[i] = NULL;
 	}
