@@ -89,7 +89,11 @@ int __nvme_transport_handle_open_mi(struct nvme_transport_handle *hdl, const cha
 	ep = nvme_mi_open_mctp(hdl->ctx, net, eid);
 	if (!ep)
 		return -EINVAL;
-
+	
+	hdl->ep = ep;
+	hdl->id = (__u16)ctrl_id;
+	list_add_tail(&ep->controllers, &hdl->ep_entry);
+	
 	return 0;
 }
 
